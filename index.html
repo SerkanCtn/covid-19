@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Covid-19 ANN Prediction System</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <nav>
+        <div class="logo">COVID<span>ANN</span></div>
+        <ul>
+            <li><a href="#prediction">Prediction</a></li>
+            <li><a href="#dashboard">Analysis</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header class="hero">
+            <h1>Predictive Analytics for <br><span>Covid-19 Outcomes</span></h1>
+            <p>Advanced Neural Network risk assessment based on clinical history and demographics.</p>
+            <a href="#prediction" class="btn-primary">Start Analysis</a>
+        </header>
+
+        <section id="prediction" class="section">
+            <div class="glass-card prediction-card">
+                <h2>Patient Risk Assessment</h2>
+                <form id="predictionForm">
+                    
+                    <div class="form-section">
+                        <h3><span class="icon">👤</span> Demographics & Status</h3>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" name="age" required min="0" max="120" value="45">
+                            </div>
+                            <div class="input-group">
+                                <label for="sex">Sex</label>
+                                <select id="sex" name="sex">
+                                    <option value="1">Female</option>
+                                    <option value="2" selected>Male</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="patient_type">Patient Type</label>
+                                <select id="patient_type" name="patient_type">
+                                    <option value="1">Outpatient</option>
+                                    <option value="2" selected>Inpatient</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="pneumonia">Pneumonia</label>
+                                <select id="pneumonia" name="pneumonia">
+                                    <option value="1" selected>Yes</option>
+                                    <option value="2">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><span class="icon">🏥</span> Clinical Indicators</h3>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="intubed">Intubated</label>
+                                <select id="intubed" name="intubed">
+                                    <option value="1">Yes</option>
+                                    <option value="2" selected>No</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="icu">ICU Admission</label>
+                                <select id="icu" name="icu">
+                                    <option value="1">Yes</option>
+                                    <option value="2" selected>No</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="medical_unit">Medical Unit Type</label>
+                                <input type="number" id="medical_unit" name="medical_unit" value="1" min="1" max="13">
+                            </div>
+                            <div class="input-group">
+                                <label for="classification">Final Classification</label>
+                                <input type="number" id="classification" name="classification" value="3" min="1" max="7">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><span class="icon">🩸</span> Chronic Conditions</h3>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="diabetes">Diabetes</label>
+                                <select id="diabetes" name="diabetes">
+                                    <option value="1">Yes</option>
+                                    <option value="2" selected>No</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="hipertension">Hypertension</label>
+                                <select id="hipertension" name="hipertension">
+                                    <option value="1">Yes</option>
+                                    <option value="2" selected>No</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="obesity">Obesity</label>
+                                <select id="obesity" name="obesity">
+                                    <option value="1">Yes</option>
+                                    <option value="2" selected>No</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="cardiovascular">Cardiovascular</label>
+                                <select id="cardiovascular" name="cardiovascular">
+                                    <option value="1">Yes</option>
+                                    <option value="2" selected>No</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="renal_chronic">Renal Chronic</label>
+                                <select id="renal_chronic" name="renal_chronic">
+                                    <option value="1">Yes</option>
+                                    <option value="2" selected>No</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="tobacco">Tobacco Use</label>
+                                <select id="tobacco" name="tobacco">
+                                    <option value="1">Yes</option>
+                                    <option value="2" selected>No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="usmer" value="2">
+                    <input type="hidden" name="pregnant" value="2">
+                    <input type="hidden" name="copd" value="2">
+                    <input type="hidden" name="asthma" value="2">
+                    <input type="hidden" name="inmsupr" value="2">
+                    <input type="hidden" name="other_disease" value="2">
+
+                    <button type="submit" class="btn-submit">Analyze Risk Profile</button>
+                </form>
+
+                <div id="result" class="result-container hidden">
+                    <div class="result-circle">
+                        <span id="riskScore">0%</span>
+                        <p>Mortality Risk</p>
+                    </div>
+                    <div class="result-text">
+                        <h3 id="riskLevel">Analysis Pending</h3>
+                        <p id="riskDescription">Submit the form to see the calculated probability based on the ANN model.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="dashboard" class="section">
+            <div class="section-title">
+                <h2>Model Insights & Analysis</h2>
+                <p>Visualization of patterns learned by our Artificial Neural Network.</p>
+            </div>
+            <div class="dashboard-grid">
+                <div class="glass-card chart-card">
+                    <h3>Correlation Matrix</h3>
+                    <img src="/static/correlation_heatmap.png" alt="Correlation Matrix">
+                </div>
+                <div class="glass-card chart-card">
+                    <h3>Hidden Space Clustering (t-SNE)</h3>
+                    <img src="/static/hidden_space_tsne.png" alt="t-SNE">
+                </div>
+                <div class="glass-card chart-card">
+                    <h3>Feature Importance</h3>
+                    <img src="/static/feature_importance.png" alt="Feature Importance">
+                </div>
+                <div class="glass-card chart-card">
+                    <h3>Prediction Threshold Tuning</h3>
+                    <img src="/static/threshold_analysis.png" alt="Threshold Analysis">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Covid ANN Project. Master Level Analytics System.</p>
+    </footer>
+
+    <script src="static/script.js"></script>
+</body>
+</html>
