@@ -11,6 +11,8 @@ async function loadModelData() {
             fetch('static/scaler_params.json'),
             fetch('static/model_weights.json')
         ]);
+        if (!scalerRes.ok || !weightsRes.ok) throw new Error("Could not fetch model/scaler data files.");
+        
         scalerParams = await scalerRes.json();
         modelWeights = await weightsRes.json();
         console.log("Model and Scaler loaded successfully.");
@@ -24,30 +26,30 @@ function scaleData(input) {
 }
 
 async function predict(input) {
-    if (!modelWeights) return 0;
+    if (!modelWeights) throw new Error("Model weights not loaded.");
 
     return tf.tidy(() => {
         let x = tf.tensor2d([input]);
 
         // Layer 1: Dense 64 (ReLU)
-        let w1 = tf.tensor2d(modelWeights.layer_1_weights);
-        let b1 = tf.tensor1d(modelWeights.layer_1_bias);
+        let w1 = tf.tensor2d(modelWeights.dense1_w);
+        let b1 = tf.tensor1d(modelWeights.dense1_b);
         x = relu(tf.add(tf.matMul(x, w1), b1));
 
-        // Layer 2: Dense 32 (ReLU) - Note: Dropout is ignored during inference
-        let w3 = tf.tensor2d(modelWeights.layer_3_weights);
-        let b3 = tf.tensor1d(modelWeights.layer_3_bias);
-        x = relu(tf.add(tf.matMul(x, w3), b3));
+        // Layer 2: Dense 32 (ReLU)
+        let w2 = tf.tensor2d(modelWeights.dense2_w);
+        let b2 = tf.tensor1d(modelWeights.dense2_b);
+        x = relu(tf.add(tf.matMul(x, w2), b2));
 
         // Layer 3: Dense 16 (ReLU)
-        let w5 = tf.tensor2d(modelWeights.layer_5_weights);
-        let b5 = tf.tensor1d(modelWeights.layer_5_bias);
-        x = relu(tf.add(tf.matMul(x, w5), b5));
+        let w3 = tf.tensor2d(modelWeights.dense3_w);
+        let b3 = tf.tensor1d(modelWeights.dense3_b);
+        x = relu(tf.add(tf.matMul(x, w3), b3));
 
         // Layer 4: Dense 1 (Sigmoid)
-        let w6 = tf.tensor2d(modelWeights.layer_6_weights);
-        let b6 = tf.tensor1d(modelWeights.layer_6_bias);
-        x = sigmoid(tf.add(tf.matMul(x, w6), b6));
+        let w4 = tf.tensor2d(modelWeights.dense4_w);
+        let b4 = tf.tensor1d(modelWeights.dense4_b);
+        x = sigmoid(tf.add(tf.matMul(x, w4), b4));
 
         return x.dataSync()[0];
     });
@@ -57,7 +59,7 @@ document.getElementById('predictionForm').addEventListener('submit', async (e) =
     e.preventDefault();
     
     if (!modelWeights || !scalerParams) {
-        alert("Model data is still loading. Please try again in a few seconds.");
+        alert("Model data is still loading or failed to load. Please refresh the page.");
         return;
     }
 
@@ -68,12 +70,6 @@ document.getElementById('predictionForm').addEventListener('submit', async (e) =
     const formData = new FormData(e.target);
     const rawData = Object.fromEntries(formData.entries());
 
-    // Order must match the model's training order exactly:
-    // 0: USMER, 1: MEDICAL_UNIT, 2: SEX, 3: PATIENT_TYPE, 4: INTUBED, 
-    // 5: PNEUMONIA, 6: AGE, 7: PREGNANT, 8: DIABETES, 9: COPD, 
-    // 10: ASTHMA, 11: INMSUPR, 12: HIPERTENSION, 13: OTHER_DISEASE, 14: CARDIOVASCULAR, 
-    // 15: OBESITY, 16: RENAL_CHRONIC, 17: TOBACCO, 18: CLASIFFICATION_FINAL, 19: ICU
-    
     const features = [
         parseInt(rawData.usmer || 2),
         parseInt(rawData.medical_unit || 1),
@@ -119,7 +115,7 @@ document.getElementById('predictionForm').addEventListener('submit', async (e) =
         document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (error) {
         console.error('Prediction error:', error);
-        alert('An error occurred during prediction.');
+        alert('An error occurred during prediction: ' + error.message);
     } finally {
         submitBtn.innerText = 'Analyze Risk Profile';
         submitBtn.disabled = false;
